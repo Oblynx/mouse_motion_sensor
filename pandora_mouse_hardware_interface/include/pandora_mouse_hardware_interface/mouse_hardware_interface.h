@@ -32,35 +32,41 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Evangelos Apostolidis
+* Author: Konstantinos Samaras-Tsakiris
 *********************************************************************/
-#include "pandora_mouse_hardware_interface/mouse_hardware_interface.h"
+#ifndef PANDORA_MOUSE_HARDWARE_INTERFACE_MOUSE_HARDWARE_INTERFACE_H
+#define PANDORA_MOUSE_HARDWARE_INTERFACE_MOUSE_HARDWARE_INTERFACE_H
 
-int main(int argc, char **argv)
+#include <fstream>
+#include <ros/ros.h>
+#include "hardware_interface/robot_hw.h"
+#include "pandora_mouse_hardware_interface/mouseMeasurement.h"
+
+namespace pandora_hardware_interface
 {
-	ros::init(argc, argv, "mouse_hardware_interface_node");
-	ros::NodeHandle nodeHandle;
-	pandora_hardware_interface::mouse::mouseHardwareInterface mouseHardwareInterface(
-	nodeHandle);
-	controller_manager::ControllerManager controllerManager(
-	&mouseHardwareInterface,
-	nodeHandle);
-	ros::Time
-	last,
-	now;
-	now = last = ros::Time::now();
-	ros::Duration period(1.0);
-	ros::AsyncSpinner spinner(2);
-	spinner.start();
-	while ( ros::ok() )
+namespace mouse
+{
+	typedef pandora_mouse_hardware_interface::mouseMeasurement mouseMeasurementMsg;
+	
+	class MouseHardwareInterface : public hardware_interface::RobotHW
 	{
-		now = ros::Time::now();
-		period = now - last;
-		last = now;
-		mouseHardwareInterface.read();
-		controllerManager.update(now, period);
-		// ~ ros::Duration(0.1).sleep();
-	}
-	spinner.stop();
-	return 0;
-}
+		public:
+			explicit MouseHardwareInterface(ros::NodeHandle nodeHandle);
+			~MouseHardwareInterface();
+			void cycle();
+		private:
+			/**
+				@brief Reads dx,dy and creates msg
+				@return void
+			**/
+			void read();
+			ros::NodeHandle nodeHandle_; //!< node handle
+			ros::publisher mousePub_;
+			std::ifstream mouseStream_;
+			std::string dev_;	//!< Device filename
+			std::string mouseTopic_;	//!< Topic on which to publish
+			double dx_, dy_;
+	};
+} // namespace mouse
+} // namespace pandora_hardware_interface
+#endif // PANDORA_MOUSE_HARDWARE_INTERFACE_MOUSE_HARDWARE_INTERFACE_H

@@ -32,55 +32,20 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Evangelos Apostolidis
+* Author: Konstantinos Samaras-Tsakiris
 *********************************************************************/
-#include "pandora_imu_hardware_interface/imu_hardware_interface.h"
-namespace pandora_hardware_interface
+#include "pandora_mouse_hardware_interface/mouse_hardware_interface.h"
+
+int main(int argc, char **argv)
 {
-namespace imu
-{
-ImuHardwareInterface::ImuHardwareInterface(
-ros::NodeHandle nodeHandle)
-:
-nodeHandle_(nodeHandle),
-imuSerialInterface(
-"/dev/imu",
-38400,
-100)
-{
-imuSerialInterface.init();
-nodeHandle_.param("roll_offset", rollOffset_, 0.0);
-nodeHandle_.param("pitch_offset", pitchOffset_, 0.0);
-// connect and register imu sensor interface
-imuOrientation_[0] = 0;
-imuOrientation_[1] = 0;
-imuOrientation_[2] = 0;
-imuOrientation_[3] = 1;
-imuData_.orientation = imuOrientation_;
-imuData_.name="/sensors/imu"; // /sensors might become namespace
-imuData_.frame_id="base_link";
-hardware_interface::ImuSensorHandle imuSensorHandle(imuData_);
-imuSensorInterface_.registerHandle(imuSensorHandle);
-registerInterface(&imuSensorInterface_);
+	ros::init(argc, argv, "mouse_hardware_interface_node");
+	ros::NodeHandle nodeHandle;
+
+	pandora_hardware_interface::mouse::mouseHardwareInterface mouseHardwareInterface(
+		nodeHandle);
+	ROS_DEBUG("Pandora mouse_hardware_interface node initialised");
+	while(ros::ok()){
+		mouseHardwareInterface.cycle();
+		ros::spinOnce();
+	}
 }
-ImuHardwareInterface::~ImuHardwareInterface()
-{
-}
-void ImuHardwareInterface::read()
-{
-float yaw, pitch, roll;
-imuSerialInterface.read();
-imuSerialInterface.getData(&yaw, &pitch, &roll);
-yaw = (yaw - 180) * (2*boost::math::constants::pi<double>()) / 360;
-pitch = -pitch * (2*boost::math::constants::pi<double>()) / 360;
-roll = roll * (2*boost::math::constants::pi<double>()) / 360;
-geometry_msgs::Quaternion orientation;
-orientation = tf::createQuaternionMsgFromRollPitchYaw(
-roll - rollOffset_, pitch -pitchOffset_, yaw);
-imuOrientation_[0] = orientation.x;
-imuOrientation_[1] = orientation.y;
-imuOrientation_[2] = orientation.z;
-imuOrientation_[3] = orientation.w;
-}
-} // namespace imu
-} // namespace pandora_hardware_interface

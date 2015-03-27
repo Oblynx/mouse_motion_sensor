@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package>
+<name>pandora_mouse_hardware_interface</name>
+<version>0.1.0</version>
+<description>Publishes motion measurements from mouse<description>
+<maintainer email="kisamara@auth.gr">Konstantinos Samaras-Tsakiris</maintainer>
+<license>BSD</license>
+<author>Konstantinos Samaras-Tsakiris</author>
+<buildtool_depend>catkin</buildtool_depend>
+<build_depend>roscpp</build_depend>
+<build_depend>message_generation</build_depend>
+<build_depend>roslint</build_depend>
+<run_depend>roscpp</run_depend>
+<run_depend>message_runtime</run_depend>
+<run_depend>roslint</run_depend>
+<export>
+</export>
+</package>

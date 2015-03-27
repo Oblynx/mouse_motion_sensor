@@ -32,55 +32,52 @@
 * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Evangelos Apostolidis
+* Author: Konstantinos Samaras-Tsakiris
 *********************************************************************/
-#ifndef PANDORA_IMU_HARDWARE_INTERFACE_IMU_HARDWARE_INTERFACE_H
-#define PANDORA_IMU_HARDWARE_INTERFACE_IMU_HARDWARE_INTERFACE_H
-#include "ros/ros.h"
-#include "tf/tf.h"
-#include <boost/math/constants/constants.hpp>
-#include <hardware_interface/imu_sensor_interface.h>
-#include <hardware_interface/robot_hw.h>
-#include <controller_manager/controller_manager.h>
-#include <pandora_imu_hardware_interface/imu_serial_interface.h>
+#include "pandora_mouse_hardware_interface/mouse_hardware_interface.h"
+
 namespace pandora_hardware_interface
 {
-namespace imu
+namespace mouse
 {
-/**
-@class ImuHardwareInterface
-@brief Allows the controller manager to communicate with the IMU
-**/
-class ImuHardwareInterface : public hardware_interface::RobotHW
-{
-public:
-/**
-@brief Default Contstructor
-@details Initializes class variables and registers handle and interface
-@param nodeHandle [ros::NodeHandle] : node handle instance
-**/
-explicit ImuHardwareInterface(
-ros::NodeHandle nodeHandle);
-/**
-@brief Default Destructor
-**/
-~ImuHardwareInterface();
-/**
-@brief Reads yaw,pitch,roll and creates a quaternion orientation msg
-@return void
-**/
-void read();
-private:
-ros::NodeHandle nodeHandle_; //!< node handle
-ImuSerialInterface imuSerialInterface; //!< imu serial interface
-hardware_interface::ImuSensorInterface
-imuSensorInterface_; //!< imu sensor interface
-hardware_interface::ImuSensorHandle::Data
-imuData_; //!< imu sensor handle
-double imuOrientation_[4]; //!< quaternion orientaion
-double rollOffset_; //!< offset to be applied to roll measurements
-double pitchOffset_; //!< offset to be applied to pitch measurements
-};
-} // namespace imu
+	MouseHardwareInterface::MouseHardwareInterface(ros::NodeHandle nodeHandle) :
+		nodeHandle_(nodeHandle)
+	{
+		nodeHandle_.getParam("dev_mouse", dev_);
+		nodeHandle_.getParam("mouse_topic", mouseTopic_);
+		dx_= 0, dy_= 0;
+		mouseStream_.open(dev_,std::ifstream::trunc | std::ifstream::binary);
+		mousePub= nodeHandle_.advertise<mouseMeasurementMsg>(mouseTopic_, 500);
+	}
+	MouseHardwareInterface::~MouseHardwareInterface() {}
+
+	void MouseHardwareInterface::cycle(){
+		if (!mouseStream_.good()) ...;
+		read();
+		//!< Generate message
+		mouseMeasurementMsg motionMsg;
+		motionMsg.header.stamp=ros::Time::now();
+		motionMsg.dx=dx_;
+		motionMsg.dy=dy_;
+		//!< Publish
+		mousePub.publish(motionMsg);
+	}
+	void MouseHardwareInterface::read(){
+		char buf[3];
+		mouseStream_.readsome(buf, 3);
+		//!< Check if read got all the data
+		if (mouseStream_.gcount()!=3){
+			ROS_ERROR("Mouse read incomplete");
+			...
+		}
+		//!< Check for mouse overflow
+		if (buf[0] & (64|128)) > 0){
+			ROS_ERROR("Mouse overflow");
+			...
+		}
+		dx_= buf[1], dy_= buf[2];
+	}
+
+
+} // namespace mouse
 } // namespace pandora_hardware_interface
-#endif // PANDORA_IMU_HARDWARE_INTERFACE_IMU_HARDWARE_INTERFACE_H
