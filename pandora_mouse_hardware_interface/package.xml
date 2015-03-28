@@ -2,7 +2,7 @@
 <package>
 <name>pandora_mouse_hardware_interface</name>
 <version>0.1.0</version>
-<description>Publishes motion measurements from mouse<description>
+<description>Publishes motion measurements from mouse</description>
 <maintainer email="kisamara@auth.gr">Konstantinos Samaras-Tsakiris</maintainer>
 <license>BSD</license>
 <author>Konstantinos Samaras-Tsakiris</author>

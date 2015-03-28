@@ -6,6 +6,16 @@ find_package(catkin REQUIRED COMPONENTS
 	std_msgs
   message_generation
 )
+############## generate messages #####################
+add_message_files(
+	FILES
+	mouseMeasurement.msg
+)
+generate_messages(
+	DEPENDENCIES
+	std_msgs
+)
+############## export dependencies ###################
 catkin_package(
 	# INCLUDE_DIRS include
 	# LIBRARIES pandora_mouse_hardware_interface
@@ -18,15 +28,6 @@ catkin_package(
 include_directories(
 	include
 	${catkin_INCLUDE_DIRS}
-)
-############## generate messages #####################
-add_message_files(
-	FILES
-	mouseMeasurement.msg
-)
-generate_messages(
-	DEPENDENCIES
-	std_msgs
 )
 ############## mouse hardware interface ##############
 add_library(mouse_hardware_interface

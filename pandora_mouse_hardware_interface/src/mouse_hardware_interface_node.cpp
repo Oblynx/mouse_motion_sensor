@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "mouse_hardware_interface_node");
 	ros::NodeHandle nodeHandle;
 
-	pandora_hardware_interface::mouse::mouseHardwareInterface mouseHardwareInterface(
+	pandora_hardware_interface::mouse::MouseHardwareInterface mouseHardwareInterface(
 		nodeHandle);
 	ROS_DEBUG("Pandora mouse_hardware_interface node initialised");
 	while(ros::ok()){

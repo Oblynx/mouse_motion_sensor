@@ -61,7 +61,7 @@ namespace mouse
 			**/
 			void read();
 			ros::NodeHandle nodeHandle_; //!< node handle
-			ros::publisher mousePub_;
+			ros::Publisher mousePub_;
 			std::ifstream mouseStream_;
 			std::string dev_;	//!< Device filename
 			std::string mouseTopic_;	//!< Topic on which to publish

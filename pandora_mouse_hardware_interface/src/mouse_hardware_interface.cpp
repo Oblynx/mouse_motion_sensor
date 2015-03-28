@@ -46,13 +46,13 @@ namespace mouse
 		nodeHandle_.getParam("dev_mouse", dev_);
 		nodeHandle_.getParam("mouse_topic", mouseTopic_);
 		dx_= 0, dy_= 0;
-		mouseStream_.open(dev_,std::ifstream::trunc | std::ifstream::binary);
-		mousePub= nodeHandle_.advertise<mouseMeasurementMsg>(mouseTopic_, 500);
+		mouseStream_.open(dev_.c_str(), std::ifstream::trunc | std::ifstream::binary);
+		mousePub_= nodeHandle_.advertise<mouseMeasurementMsg>(mouseTopic_, 500);
 	}
 	MouseHardwareInterface::~MouseHardwareInterface() {}
 
 	void MouseHardwareInterface::cycle(){
-		if (!mouseStream_.good()) ...;
+		//if (!mouseStream_.good()) ...;
 		read();
 		//!< Generate message
 		mouseMeasurementMsg motionMsg;
@@ -60,7 +60,7 @@ namespace mouse
 		motionMsg.dx=dx_;
 		motionMsg.dy=dy_;
 		//!< Publish
-		mousePub.publish(motionMsg);
+		mousePub_.publish(motionMsg);
 	}
 	void MouseHardwareInterface::read(){
 		char buf[3];
@@ -68,12 +68,12 @@ namespace mouse
 		//!< Check if read got all the data
 		if (mouseStream_.gcount()!=3){
 			ROS_ERROR("Mouse read incomplete");
-			...
+			//...
 		}
 		//!< Check for mouse overflow
-		if (buf[0] & (64|128)) > 0){
+		if ((buf[0] & (64|128)) > 0){
 			ROS_ERROR("Mouse overflow");
-			...
+			//...
 		}
 		dx_= buf[1], dy_= buf[2];
 	}
