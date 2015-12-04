@@ -6,7 +6,6 @@ find_package(catkin REQUIRED COMPONENTS
 	std_msgs
   message_generation
 )
-# delete_this github
 ############## generate messages #####################
 add_message_files(
 	FILES
